@@ -1,4 +1,4 @@
-# NUS CS5284 Graph Machine Learning, Sem 2 2025/26
+# NUS CS5242 Neural Networks and Deep Learning, Sem 2 2025/26
 
 ## Xavier Bresson
 
