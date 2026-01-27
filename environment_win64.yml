@@ -2,31 +2,31 @@
 # conda env create -f environment.yml
 # conda activate deeplearn_course
 # note: It took 10 min to install the environment
+# Version : 26 Jan 2026
 
 name: deeplearn_course
 channels:
-  - pypi # pip
-  - conda-forge # numpy/scipy/rdkit etc
-  - pytorch # DL
+  - conda-forge
   - defaults
 dependencies:
-  # basic
   - python=3.8
-  - numpy=1.24
+  - pip=24.2
   - jupyter=1.0
   - ipython=8.12
-  - matplotlib=3.7
-  - scipy=1.10.1
-  - networkx=3.1
-  - pip=24.2
-  - pandas=2.0
-  - seaborn=0.13
-  # molecule
-  - rdkit=2023.09.6
-  # deep learning
-  - pytorch=2.1.2 # DL
-  - torchvision=0.16 # CV 
-  - pip: # critical : a double indentation is required to install pip packages below !
-    - gym==0.26 # RL
-
+  # pip-specific installs
+  - pip: # critical : a double indentation is required to install pip packages below
+    - numpy==1.24.3
+    - pandas==2.0.3
+    - scipy==1.10.1
+    - matplotlib==3.7.1
+    - seaborn==0.13.0
+    - networkx==3.1
+    # PyTorch
+    - torch==2.1.2
+    - torchvision==0.16.2
+    - torchaudio==2.1.2
+    # Molecule
+    - rdkit==2023.9.6 
+    # RL
+    - gym==0.26
 
