@@ -5,3 +5,6 @@
 **/__pycache__/
 **.pptx
 **/dev
+*.pt
+data/
+.vscode/
