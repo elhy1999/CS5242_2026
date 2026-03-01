@@ -66,7 +66,7 @@ criterion(scores, labels)
 ################## Finalized Training loop ##################
 N = 60000; n_dim = 3; w = h = 28; train_data = test_data = torch.rand([N, n_dim, w, h]); train_label = test_label = torch.rand([N, 1]).long()
 
-criterion = nn.NLLLoss() # Used when you already computed log-probs 
+criterion = nn.NLLLoss() # Used when you already computed log-probabilties (e.g. with log_softmax)
 criterion = nn.CrossEntropyLoss() # Used on raw logits
 optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
 batch_size = 200
@@ -233,3 +233,74 @@ def eval_on_test_set():
         num_batches+=1
     total_error = running_error/num_batches
     print('test error =', total_error*100 ,'percent')
+
+################### PYP ###################
+
+def my_softmax(x):
+    exp_x = torch.exp(x)
+    result = exp_x/ torch.sum(exp_x, dim = 1, keepdim=True)
+    # Compute softmax
+    return result
+
+
+def my_nll_loss(log_probs, targets):
+    """
+    log_probs: Tensor of shape (N, C) containing log-probabilities for each class
+    targets: Tensor of shape (N,) containing the indices of the correct class for each sample
+    Returns:
+    loss: Scalar tensor representing the average negative log-likelihood loss
+    """
+    N = log_probs.size(0)
+
+    # Select the log-prob of the correct class for each sample
+    correct_log_probs = log_probs[torch.arange(N), targets]
+
+    # Negative mean
+    loss = -correct_log_probs.mean()
+    
+    return loss
+
+def my_cross_entropy(x, y):
+    """
+    x: Tensor of shape (N, C) containing the raw scores (logits) for each class
+    y: Tensor of shape (N, C) containing the one-hot encoded true labels
+    Returns:
+    loss: Scalar tensor representing the average cross-entropy loss
+    """
+    if y.dim() == 1: # If y is not one-hot encoded (e.g. [0, 1, 0, 0, 1, 2]), convert it to one-hot encoding
+        y = torch.nn.functional.one_hot(y, num_classes=x.size(1))
+    log_probs = torch.log(my_softmax(x))
+    return my_nll_loss(log_probs, y.argmax(dim=1))
+
+class MyMLP:
+    """
+    A simple MLP with one hidden layer using manual matrix multiplication
+    and manual sigmoid, without torch.nn.Linear or torch.sigmoid.
+    """
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        # Weights and biases are randomly initialized with :
+        #  1) Hidden layer: (input_dim  -> hidden_dim)
+        #  2) Output layer: (hidden_dim -> output_dim)
+        self.W1 = torch.randn(input_dim, hidden_dim, requires_grad=False)
+        self.b1 = torch.randn(hidden_dim, requires_grad=False)
+        self.W2 = torch.randn(hidden_dim, output_dim, requires_grad=False)
+        self.b2 = torch.randn(output_dim, requires_grad=False)
+
+    def sigmoid(self, x):
+        return 1 / (1 + torch.exp(-x))
+    
+    def relu(self, x):
+        return torch.maximum(torch.zeros_like(x), x)
+
+    def forward(self, x):
+        """
+        Forward pass through:
+            hidden = sigmoid(W1 * x + b1)
+            output = W2 * hidden + b2
+        """
+        print(self.W1.shape)
+        print(x.shape) # N, D
+        h = x @ self.W1 + self.b1
+        h = self.sigmoid(h)
+        out = h @ self.W2 + self.b2
+        return out
