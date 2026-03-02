@@ -308,3 +308,79 @@ class MyMLP:
         h = self.sigmoid(h)
         out = h @ self.W2 + self.b2
         return out
+    
+##########
+
+#a
+def softmax(logits):
+    #
+    exp_x = torch.exp(logits)
+    sum_exp_x = torch.sum(exp_x, dim=0)
+    p = exp_x / sum_exp_x
+    #
+    return p
+
+def forward(self, x):
+    #
+    y_hat = torch.matmul(x, self.weight.T) + self.bias
+    p = softmax(y_hat)
+    #
+    return p
+#b
+def update(self, input, p, label, learning_rate):
+    with torch.no_grad():
+        #
+        p_target = torch.zeros_like(p)
+        p_target[label] = 1
+        e = p_target - p
+        outer_product = self._outer_product(e, input)
+        self.mylayer.weight += learning_rate * outer_product
+
+def _outer_product(self, tensor_1: torch.Tensor, tensor_2: torch.Tensor) -> torch.Tensor:
+    return torch.matmul(tensor_1.view(-1, 1), tensor_2.view(1, -1))
+        #
+
+#c
+class MLP(nn.Module):
+
+  def __init__(self):
+    super(MLP , self).__init__()
+    #
+    self.linear1 = nn.Linear(2, 64)
+    self.relu = nn.ReLU()
+    self.linear2 = nn.Linear(64, 2, bias=False)
+    #
+
+  def forward(self, x):
+    #
+    x = self.linear1(x)
+    x = self.relu(x)
+    scores = self.linear2(x)
+    #
+    return scores
+  
+#
+if epoch % 10 == 0 and epoch != 0:
+    lr /= 2
+#
+
+#
+pred_scores = model(batch_x)
+loss = criterion(pred_scores, batch_label)
+loss.backward()
+optimizer.step()
+#
+
+#d
+#
+self.experts = nn.ModuleList([MLPExpert(in_dim, hidden_dim, out_dim) for _ in range(num_experts)])
+self.gate = nn.Linear(in_dim, num_experts)
+#
+
+#
+weights = torch.softmax(self.gate(x), dim=0)  # (num_experts)
+expert_outs = torch.stack([expert(x) for expert in self.experts])  # (num_experts, out_dim)
+y = 0
+for i in range(self.num_experts):
+    y += weights[i] * expert_outs[i]
+#
