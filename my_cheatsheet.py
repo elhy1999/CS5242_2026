@@ -68,6 +68,7 @@ N = 60000; n_dim = 3; w = h = 28; train_data = test_data = torch.rand([N, n_dim,
 
 criterion = nn.NLLLoss() # Used when you already computed log-probabilties (e.g. with log_softmax)
 criterion = nn.CrossEntropyLoss() # Used on raw logits
+# For definition, see slide 165 of combined lecture notes
 optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
 batch_size = 200
 num_epochs = 5000
@@ -142,7 +143,7 @@ for epoch in range(num_epochs):
         minibatch_label = train_label[indices]
 
         # reshape the minibatch
-        inputs = minibatch_data.view(batch_size, 784)
+        inputs = minibatch_data.view(batch_size, 784) # Can also be (-1, 784) to let Pytorch automatically infer the batch size
 
         # tell Pytorch to start tracking all operations that will be done on "inputs"
         inputs.requires_grad_()
@@ -151,8 +152,11 @@ for epoch in range(num_epochs):
         scores=net(inputs) 
 
         # Compute the average of the losses of the data points in the minibatch
+        # Note: The shape of scores has to be (batch_size, num_classes) 
+        # and the shape of minibatch_label has to be (batch_size,) for this to work. 
+        # If not, you will get an error.
         loss = criterion(scores, minibatch_label) 
-        
+
         # backward pass to compute dL/dU, dL/dV and dL/dW    
         loss.backward()
 
@@ -298,8 +302,8 @@ class MyMLP:
             hidden = sigmoid(W1 * x + b1)
             output = W2 * hidden + b2
         """
-        print(self.W1.shape)
-        print(x.shape) # N, D
+        print(self.W1.shape) # (input_dim, hidden_dim)
+        print(x.shape) # (N, input_dim)
         h = x @ self.W1 + self.b1
         h = self.sigmoid(h)
         out = h @ self.W2 + self.b2
