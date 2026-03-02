@@ -2,6 +2,9 @@ import time
 import torch
 import torch.nn as nn
 
+# Cross-Entropy: Slide 165
+# Backpropagation: Slide 203 and 204
+
 ################## Initialization ##################
 my_tensor = torch.Tensor([1, 1]) # float tensor
 my_long_tensor = my_tensor.long() # LongTensor
@@ -304,3 +307,5 @@ class MyMLP:
         h = self.sigmoid(h)
         out = h @ self.W2 + self.b2
         return out
+    
+
